@@ -9,9 +9,9 @@ interface TransactionItemProps {
 }
 
 const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
-  const { id, description, amount, type, category, date } = transaction
+  const { id, description, amount, type, category, transaction_date } = transaction
 
-  const formattedDate = new Date(date).toLocaleDateString("en-US", {
+  const formattedDate = new Date(transaction_date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -57,7 +57,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
           </span>
 
           <button
-            onClick={() => onDelete(id)}
+            onClick={() => id && onDelete(id)}
             className="text-gray-400 hover:text-red-500 transition-colors"
             aria-label="Delete transaction"
           >

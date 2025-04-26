@@ -38,7 +38,7 @@ const TransactionChart = ({ transactions }: TransactionChartProps) => {
 
     const data = last6Months.map(({ month, year, monthIndex, yearMonth }) => {
       const monthlyTransactions = transactions.filter((t) => {
-        const tDate = new Date(t.date)
+        const tDate = new Date(t.transaction_date)
         return tDate.getMonth() === monthIndex && tDate.getFullYear() === year
       })
 

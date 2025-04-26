@@ -1,54 +1,64 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useState, useContext } from "react";
+import { TransactionContext } from "../context/TransactionContext";
+import type { TransactionType } from "../types";
 
-import { useState, useContext } from "react"
-import { TransactionContext } from "../context/TransactionContext"
-import type { Transaction, TransactionType } from "../types"
+interface TransactionFormProps {
+  onAddTransaction: () => void; // 🛠️ new prop to tell parent when saved
+}
 
-const TransactionForm = () => {
-  const { addTransaction } = useContext(TransactionContext)
+const TransactionForm = ({ onAddTransaction }: TransactionFormProps) => {
+  const { addTransaction } = useContext(TransactionContext);
+
   const [formData, setFormData] = useState({
     description: "",
     amount: "",
     type: "expense" as TransactionType,
     category: "food",
-    date: new Date().toISOString().split("T")[0],
-  })
+    transaction_date: new Date().toISOString().split("T")[0],
+  });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-    const newTransaction: Transaction = {
-      id: Date.now().toString(),
+    const newTransaction = {
       description: formData.description,
       amount: Number.parseFloat(formData.amount),
-      type: formData.type as TransactionType,
+      type: formData.type,
       category: formData.category,
-      date: new Date(formData.date),
-    }
+      transaction_date: new Date(formData.transaction_date),
+    };
 
-    addTransaction(newTransaction)
+    await addTransaction(newTransaction);
 
-    // Reset form
+    // reset form
     setFormData({
       description: "",
       amount: "",
       type: "expense",
       category: "food",
-      date: new Date().toISOString().split("T")[0],
-    })
-  }
+      transaction_date: new Date().toISOString().split("T")[0],
+    });
+
+    setLoading(false);
+
+    onAddTransaction(); // 🛠️ call parent to show success
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Description */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="description" className="block text-sm font-medium mb-1">
           Description
         </label>
         <input
@@ -63,8 +73,9 @@ const TransactionForm = () => {
         />
       </div>
 
+      {/* Amount */}
       <div>
-        <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="amount" className="block text-sm font-medium mb-1">
           Amount
         </label>
         <input
@@ -81,8 +92,9 @@ const TransactionForm = () => {
         />
       </div>
 
+      {/* Type */}
       <div>
-        <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="type" className="block text-sm font-medium mb-1">
           Type
         </label>
         <select
@@ -97,8 +109,9 @@ const TransactionForm = () => {
         </select>
       </div>
 
+      {/* Category */}
       <div>
-        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="category" className="block text-sm font-medium mb-1">
           Category
         </label>
         <select
@@ -127,29 +140,34 @@ const TransactionForm = () => {
         </select>
       </div>
 
+      {/* Date */}
       <div>
-        <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="transaction_date" className="block text-sm font-medium mb-1">
           Date
         </label>
         <input
           type="date"
-          id="date"
-          name="date"
-          value={formData.date}
+          id="transaction_date"
+          name="transaction_date"
+          value={formData.transaction_date}
           onChange={handleChange}
           required
           className="w-full border border-gray-300 rounded-md p-2"
         />
       </div>
 
+      {/* Submit Button */}
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+        disabled={loading}
+        className={`w-full bg-blue-600 text-white py-2 px-4 rounded-md transition-colors ${
+          loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+        }`}
       >
-        Add Transaction
+        {loading ? "Saving..." : "Add Transaction"}
       </button>
     </form>
-  )
-}
+  );
+};
 
-export default TransactionForm
+export default TransactionForm;

@@ -22,7 +22,10 @@ const TransactionList = ({ filters }: TransactionListProps) => {
   // Apply sorting
   const sortedTransactions = [...filteredTransactions].sort((a, b) => {
     if (filters.sortBy === "date") {
-      return filters.sortOrder === "asc" ? a.date.getTime() - b.date.getTime() : b.date.getTime() - a.date.getTime()
+      return filters.sortOrder === "asc"
+  ? new Date(a.transaction_date).getTime() - new Date(b.transaction_date).getTime()
+  : new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime();
+
     }
 
     if (filters.sortBy === "amount") {
