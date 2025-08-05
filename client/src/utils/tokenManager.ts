@@ -112,19 +112,36 @@ class TokenManager {
   }
 }
 
+// Flag to prevent multiple interceptor setups
+let interceptorsSetup = false;
+
 // Axios interceptor to automatically handle token refresh
 export const setupAxiosInterceptors = (axios: any) => {
+  // Prevent multiple setups
+  if (interceptorsSetup) {
+    return;
+  }
+  interceptorsSetup = true;
+
   const tokenManager = TokenManager.getInstance();
 
   // Request interceptor to add token
   axios.interceptors.request.use(
     async (config: any) => {
+      // Skip token addition for login and register endpoints
+      if (config.url?.includes('/auth/login') || config.url?.includes('/auth/register')) {
+        return config;
+      }
+
       try {
         const token = await tokenManager.getValidAccessToken();
         config.headers.Authorization = `Bearer ${token}`;
       } catch (error) {
-        // If we can't get a valid token, redirect to login
-        window.location.href = '/login';
+        // If we can't get a valid token, check if we're already on login page
+        if (!window.location.pathname.includes('/login')) {
+          console.log('No valid token, redirecting to login');
+          window.location.href = '/login';
+        }
         return Promise.reject(error);
       }
       return config;
@@ -148,9 +165,12 @@ export const setupAxiosInterceptors = (axios: any) => {
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return axios(originalRequest);
         } catch (refreshError) {
-          // Refresh failed, redirect to login
+          // Refresh failed, redirect to login only if not already there
           tokenManager.clearTokens();
-          window.location.href = '/login';
+          if (!window.location.pathname.includes('/login')) {
+            console.log('Token refresh failed, redirecting to login');
+            window.location.href = '/login';
+          }
           return Promise.reject(refreshError);
         }
       }

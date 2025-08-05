@@ -10,33 +10,35 @@ import { TransactionProvider } from "./context/TransactionContext"
 
 function App() {
   return (
-    <TransactionProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={
+            <TransactionProvider>
               <div>
                 <Header />
                 <main className="container mx-auto px-4 py-8">
                   <Dashboard />
                 </main>
               </div>
-            } />
-            <Route path="/transactions" element={
+            </TransactionProvider>
+          } />
+          <Route path="/transactions" element={
+            <TransactionProvider>
               <div>
                 <Header />
                 <main className="container mx-auto px-4 py-8">
                   <Transactions />
                 </main>
               </div>
-            } />
-          </Routes>
-        </div>
-      </Router>
-    </TransactionProvider>
+            </TransactionProvider>
+          } />
+        </Routes>
+      </div>
+    </Router>
   )
 }
 

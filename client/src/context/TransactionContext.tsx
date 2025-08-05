@@ -5,9 +5,6 @@ import type { Transaction } from "../types";
 import axios from "axios";
 import { setupAxiosInterceptors } from "../utils/tokenManager";
 
-// Setup axios interceptors for automatic token refresh
-setupAxiosInterceptors(axios);
-
 interface TransactionContextType {
   transactions: Transaction[];
   addTransaction: (transaction: Omit<Transaction, "id">) => Promise<boolean>;
@@ -28,6 +25,11 @@ interface TransactionProviderProps {
 
 export const TransactionProvider = ({ children }: TransactionProviderProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  // Setup axios interceptors only once when component mounts
+  useEffect(() => {
+    setupAxiosInterceptors(axios);
+  }, []);
 
   // Function to fetch transactions from the API
   const fetchTransactions = async () => {
