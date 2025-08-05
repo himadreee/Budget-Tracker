@@ -5,10 +5,12 @@ from typing import Optional
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load environment variables from root directory
+load_dotenv(dotenv_path="../.env")
 
 # Configuration
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production")
+SECRET_KEY = os.getenv("JWT_SECRET", "your-secret-key-change-this-in-production")
+REFRESH_SECRET_KEY = os.getenv("JWT_REFRESH_SECRET", "your-refresh-secret-key-change-this-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -49,7 +51,7 @@ class TokenManager:
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
         to_encode.update({"exp": expire, "type": "refresh"})
-        encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+        encoded_jwt = jwt.encode(to_encode, REFRESH_SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
     
     @staticmethod
@@ -74,7 +76,12 @@ class TokenManager:
     @staticmethod
     def verify_refresh_token(token: str) -> Optional[str]:
         """Extract user ID from refresh token"""
-        payload = TokenManager.verify_token(token)
-        if payload and payload.get("type") == "refresh":
-            return payload.get("sub")
-        return None
+        try:
+            payload = jwt.decode(token, REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
+            if payload.get("type") == "refresh":
+                return payload.get("sub")
+            return None
+        except jwt.ExpiredSignatureError:
+            return None
+        except jwt.JWTError:
+            return None

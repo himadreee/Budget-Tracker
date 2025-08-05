@@ -8,6 +8,11 @@ from app.auth import PasswordManager, TokenManager
 from datetime import datetime
 from typing import Optional
 from bson import ObjectId
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from root directory
+load_dotenv(dotenv_path="../.env")
 
 app = FastAPI(title="Budget Tracker API", version="1.0.0")
 
@@ -15,9 +20,10 @@ app = FastAPI(title="Budget Tracker API", version="1.0.0")
 security = HTTPBearer()
 
 # CORS configuration
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5173", "http://localhost:5173"],  # Frontend URLs
+    allow_origins=[frontend_url, "http://127.0.0.1:5173", "http://localhost:5173"],  # Frontend URLs
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers including Authorization
