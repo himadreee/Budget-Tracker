@@ -97,3 +97,17 @@
   animation: slide-up 0.8s ease-out 0.4s both;
 }
 
+/* Header Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
