@@ -114,12 +114,5 @@ npm run dev
 - Modern, responsive UI with glassmorphism and subtle animations
 - Clean codebase with clear separation of concerns
 
----
 
-## 📄 License
-MIT
 
----
-
-## 🙋‍♂️ Author
-- [Your Name](https://github.com/yourusername)
